@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 import atexit
 from datetime import datetime
 from pytz import timezone
@@ -7,8 +8,6 @@ from telegram import Bot
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from dotenv import load_dotenv  # Only used locally
-
-
 
 # Load .env in development (ignored in Railway)
 if os.getenv("RAILWAY_ENVIRONMENT") is None:
@@ -46,12 +45,19 @@ Ha'im na'aroch shi'ur be-4 be-November?"""
 
 MOSCOW_TZ = timezone("Europe/Moscow")
 
+
 def send_telegram_message(text: str):
-    try:
-        bot.send_message(chat_id=chat_id, text=text)
-        logger.info(f"Message sent at {datetime.now(MOSCOW_TZ)}")
-    except Exception as e:
-        logger.error(f"Failed to send message: {e}")
+    """Synchronously send a Telegram message by running async code in an event loop."""
+    async def _send():
+        try:
+            await bot.send_message(chat_id=chat_id, text=text)
+            logger.info(f"Message sent at {datetime.now(MOSCOW_TZ)}")
+        except Exception as e:
+            logger.error(f"Failed to send message: {e}")
+
+    # Run the async function in a new event loop (safe for sync context)
+    asyncio.run(_send())
+
 
 def schedule_reminders():
     scheduler = BackgroundScheduler(timezone=MOSCOW_TZ)
@@ -73,6 +79,7 @@ def schedule_reminders():
     atexit.register(lambda: scheduler.shutdown())
     
     return scheduler
+
 
 # Determine environment
 env_name = "Railway" if os.getenv("RAILWAY_ENVIRONMENT") else "Local"
