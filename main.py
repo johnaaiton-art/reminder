@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from dotenv import load_dotenv  # Only used locally
 
-import os
+
 
 # Load .env in development (ignored in Railway)
 if os.getenv("RAILWAY_ENVIRONMENT") is None:
