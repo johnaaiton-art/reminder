@@ -11,15 +11,17 @@ from dotenv import load_dotenv  # Only used locally
 # Load .env in development (ignored in Railway)
 if os.getenv("RAILWAY_ENVIRONMENT") is None:
     load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Debug logging
 logger.info(f"Environment check:")
 logger.info(f"BOT_TOKEN exists: {'BOT_TOKEN' in os.environ}")
 logger.info(f"BOT_TOKEN value length: {len(os.getenv('BOT_TOKEN', ''))}")
 logger.info(f"CHAT_ID exists: {'CHAT_ID' in os.environ}")
 logger.info(f"CHAT_ID value: {os.getenv('CHAT_ID', 'NOT_SET')}")
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Get secrets from environment
 BOT_TOKEN = os.getenv("BOT_TOKEN")
